@@ -11,10 +11,6 @@ This project demonstrates end-to-end ingestion of wide CSV and Postgres tables i
    python data/generate_csv.py
    ```
 
-2. (Optional) If you're running behind a proxy or firewalled network, make sure the Spark containers can download Maven artifacts.
-   The stack automatically pulls the Iceberg runtime and Postgres JDBC driver defined in `conf/spark-defaults.conf` during the
-   first Spark submission. If external downloads are blocked, pre-populate the jars in the Docker image or mirror them locally.
-
 ## How to run the stack
 1. Start the core services (Postgres, MinIO, Hive Metastore, Spark master/worker):
    ```bash
@@ -29,10 +25,6 @@ This project demonstrates end-to-end ingestion of wide CSV and Postgres tables i
 
 ## Run the Spark ingestion jobs
 All commands below run inside the `spark-master` container.
-
-The Spark defaults already point at the Iceberg catalog (`lakehouse`) and include the necessary dependencies
-(`iceberg-spark-runtime-3.5_2.12` and `postgresql` JDBC driver), so the commands below can run without extra
-`--packages` flags.
 
 ### CSV -> Iceberg (PySpark)
 ```bash
