@@ -11,15 +11,6 @@ This project demonstrates end-to-end ingestion of wide CSV and Postgres tables i
    python data/generate_csv.py
    ```
 
-2. Build the Hive Metastore image with bundled S3A dependencies (required for Iceberg metadata on MinIO):
-   ```bash
-   docker-compose build hive-metastore
-   ```
-
-3. (Optional) If you're running behind a proxy or firewalled network, make sure the Spark containers can download Maven artifacts.
-   The stack automatically pulls the Iceberg runtime and Postgres JDBC driver defined in `conf/spark-defaults.conf` during the
-   first Spark submission. If external downloads are blocked, pre-populate the jars in the Docker image or mirror them locally.
-
 ## How to run the stack
 1. Start the core services (Postgres, MinIO, Hive Metastore, Spark master/worker):
    ```bash
@@ -27,18 +18,13 @@ This project demonstrates end-to-end ingestion of wide CSV and Postgres tables i
    ```
    The MinIO service now has a healthcheck; the bucket-initializer waits until MinIO is ready before creating the `landing` and `warehouse` buckets.
 
-2. Check that containers are healthy and the Hive Metastore build completed (the image pulls S3A dependencies on first build):
+2. Verify all containers are healthy before running Spark jobs:
    ```bash
    docker-compose ps
-   docker-compose logs -f hive-metastore  # wait for "Starting Hive Metastore Server" and no download errors
    ```
 
 ## Run the Spark ingestion jobs
 All commands below run inside the `spark-master` container.
-
-The Spark defaults already point at the Iceberg catalog (`lakehouse`) and include the necessary dependencies
-(`iceberg-spark-runtime-3.5_2.12` and `postgresql` JDBC driver), so the commands below can run without extra
-`--packages` flags.
 
 ### CSV -> Iceberg (PySpark)
 ```bash
