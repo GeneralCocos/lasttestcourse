@@ -1,0 +1,19 @@
+<configuration>
+    <property>
+        <name>hive.metastore.uris</name>
+        <value>thrift://hive-metastore:9083</value>
+    </property>
+
+    <property>
+        <name>iceberg.catalog.lakehouse.type</name>
+        <value>hive</value>
+    </property>
+    <property>
+        <name>iceberg.catalog.lakehouse.uri</name>
+        <value>thrift://hive-metastore:9083</value>
+    </property>
+    <property>
+        <name>iceberg.catalog.lakehouse.warehouse</name>
+        <value>s3a://warehouse/iceberg</value>
+    </property>
+</configuration>
