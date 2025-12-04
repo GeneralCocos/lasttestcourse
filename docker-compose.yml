@@ -51,7 +51,10 @@ services:
       "
 
   hive-metastore:
-    image: apache/hive:4.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile.hive
+    image: hive-with-s3a:latest
     container_name: hive-metastore
     hostname: hive-metastore
     environment:
@@ -65,6 +68,7 @@ services:
       - postgres
     volumes:
       - iceberg_warehouse:/warehouse
+      - ./conf/core-site.xml:/opt/hive/conf/core-site.xml
 
   spark-master:
     image: apache/spark:3.5.1-scala2.12-java17-python3-ubuntu
