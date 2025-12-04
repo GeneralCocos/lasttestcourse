@@ -1,4 +1,5 @@
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.{col, concat_ws, current_timestamp, sha2}
 
 object CsvToIcebergScala {
   def main(args: Array[String]): Unit = {
@@ -15,7 +16,11 @@ object CsvToIcebergScala {
       .option("inferSchema", "true")
       .csv("/opt/data/input.csv")
 
-    df.createOrReplaceTempView("csv_source_scala")
+    val transformed = df
+      .withColumn("ingestion_ts", current_timestamp())
+      .withColumn("row_hash", sha2(concat_ws("||", df.columns.map(col): _*), 256))
+
+    transformed.createOrReplaceTempView("csv_source_scala")
 
     spark.sql(
       """
