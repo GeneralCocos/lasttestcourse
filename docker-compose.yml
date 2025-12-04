@@ -96,6 +96,7 @@ services:
       - ./data:/opt/data
       - ./conf/core-site.xml:/opt/spark/conf/core-site.xml
       - ./conf/hive-site.xml:/opt/spark/conf/hive-site.xml
+      - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
       - iceberg-warehouse:/opt/spark/iceberg-warehouse
       - spark-logs:/opt/spark/logs
       - iceberg_warehouse:/warehouse
@@ -123,6 +124,7 @@ services:
       - ./data:/opt/data
       - ./conf/core-site.xml:/opt/spark/conf/core-site.xml
       - ./conf/hive-site.xml:/opt/spark/conf/hive-site.xml
+      - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
       - iceberg-warehouse:/opt/spark/iceberg-warehouse
       - spark-logs:/opt/spark/logs
       - iceberg_warehouse:/warehouse
