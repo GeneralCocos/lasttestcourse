@@ -1,4 +1,6 @@
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.{col, current_date, lit}
+import org.apache.spark.sql.types.NumericType
 
 object PgToIcebergScala {
   def main(args: Array[String]): Unit = {
@@ -19,7 +21,14 @@ object PgToIcebergScala {
       .option("driver", "org.postgresql.Driver")
       .load()
 
-    pgDf.createOrReplaceTempView("pg_source_scala")
+    val numericColumns = pgDf.schema.fields.collect { case f if f.dataType.isInstanceOf[NumericType] => col(f.name).cast("double") }
+    val numericSum = numericColumns.reduceLeftOption(_ + _).getOrElse(lit(null))
+
+    val transformed = pgDf
+      .withColumn("load_date", current_date())
+      .withColumn("numeric_sum", numericSum)
+
+    transformed.createOrReplaceTempView("pg_source_scala")
 
     spark.sql(
       """
