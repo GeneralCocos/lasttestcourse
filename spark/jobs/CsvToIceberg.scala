@@ -1,4 +1,5 @@
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.{col, concat_ws, current_timestamp, sha2}
 
 object CsvToIcebergScala {
   def main(args: Array[String]): Unit = {
@@ -8,6 +9,7 @@ object CsvToIcebergScala {
       .config("spark.sql.catalog.lakehouse.type", "hive")
       .config("spark.sql.catalog.lakehouse.uri", "thrift://hive-metastore:9083")
       .config("spark.sql.catalog.lakehouse.warehouse", "s3a://warehouse/iceberg")
+      .enableHiveSupport()
       .getOrCreate()
 
     val df = spark.read
@@ -15,16 +17,20 @@ object CsvToIcebergScala {
       .option("inferSchema", "true")
       .csv("/opt/data/input.csv")
 
-    df.createOrReplaceTempView("csv_source_scala")
+    val transformed = df
+      .withColumn("ingestion_ts", current_timestamp())
+      .withColumn("row_hash", sha2(concat_ws("||", df.columns.map(col): _*), 256))
+
+    transformed.createOrReplaceTempView("csv_source_scala")
 
     spark.sql(
       """
-        |CREATE DATABASE IF NOT EXISTS lakehouse_demo
+        |CREATE NAMESPACE IF NOT EXISTS lakehouse.lakehouse_demo
         |""".stripMargin)
 
     spark.sql(
       """
-        |CREATE TABLE IF NOT EXISTS lakehouse.lakehouse_demo.csv_iceberg_scala
+        |CREATE OR REPLACE TABLE lakehouse.lakehouse_demo.csv_iceberg_scala
         |USING iceberg
         |AS SELECT * FROM csv_source_scala
         |""".stripMargin)
