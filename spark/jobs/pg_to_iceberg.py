@@ -27,6 +27,7 @@ def main():
         .config("spark.sql.catalog.lakehouse.type", "hive")
         .config("spark.sql.catalog.lakehouse.uri", "thrift://hive-metastore:9083")
         .config("spark.sql.catalog.lakehouse.warehouse", "s3a://warehouse/iceberg")
+        .enableHiveSupport()
         .getOrCreate()
     )
 
@@ -48,11 +49,11 @@ def main():
     transformed.createOrReplaceTempView("pg_source")
 
     spark.sql("""
-        CREATE DATABASE IF NOT EXISTS lakehouse_demo
+        CREATE NAMESPACE IF NOT EXISTS lakehouse.lakehouse_demo
     """)
 
     spark.sql("""
-        CREATE TABLE IF NOT EXISTS lakehouse.lakehouse_demo.pg_iceberg_python
+        CREATE OR REPLACE TABLE lakehouse.lakehouse_demo.pg_iceberg_python
         USING iceberg
         AS SELECT * FROM pg_source
     """)

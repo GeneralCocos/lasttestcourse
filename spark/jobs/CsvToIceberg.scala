@@ -9,6 +9,7 @@ object CsvToIcebergScala {
       .config("spark.sql.catalog.lakehouse.type", "hive")
       .config("spark.sql.catalog.lakehouse.uri", "thrift://hive-metastore:9083")
       .config("spark.sql.catalog.lakehouse.warehouse", "s3a://warehouse/iceberg")
+      .enableHiveSupport()
       .getOrCreate()
 
     val df = spark.read
@@ -24,12 +25,12 @@ object CsvToIcebergScala {
 
     spark.sql(
       """
-        |CREATE DATABASE IF NOT EXISTS lakehouse_demo
+        |CREATE NAMESPACE IF NOT EXISTS lakehouse.lakehouse_demo
         |""".stripMargin)
 
     spark.sql(
       """
-        |CREATE TABLE IF NOT EXISTS lakehouse.lakehouse_demo.csv_iceberg_scala
+        |CREATE OR REPLACE TABLE lakehouse.lakehouse_demo.csv_iceberg_scala
         |USING iceberg
         |AS SELECT * FROM csv_source_scala
         |""".stripMargin)

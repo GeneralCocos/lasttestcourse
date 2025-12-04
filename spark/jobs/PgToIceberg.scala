@@ -10,6 +10,7 @@ object PgToIcebergScala {
       .config("spark.sql.catalog.lakehouse.type", "hive")
       .config("spark.sql.catalog.lakehouse.uri", "thrift://hive-metastore:9083")
       .config("spark.sql.catalog.lakehouse.warehouse", "s3a://warehouse/iceberg")
+      .enableHiveSupport()
       .getOrCreate()
 
     val pgDf = spark.read
@@ -32,12 +33,12 @@ object PgToIcebergScala {
 
     spark.sql(
       """
-        |CREATE DATABASE IF NOT EXISTS lakehouse_demo
+        |CREATE NAMESPACE IF NOT EXISTS lakehouse.lakehouse_demo
         |""".stripMargin)
 
     spark.sql(
       """
-        |CREATE TABLE IF NOT EXISTS lakehouse.lakehouse_demo.pg_iceberg_scala
+        |CREATE OR REPLACE TABLE lakehouse.lakehouse_demo.pg_iceberg_scala
         |USING iceberg
         |AS SELECT * FROM pg_source_scala
         |""".stripMargin)
